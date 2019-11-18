@@ -84,7 +84,7 @@ end entity sdram_controller;
 
 architecture rtl of sdram_controller is
 
-	type mem_state_type is (CONFIG, C_PRE, C_PRE_NOP, C_INIT_AUTO_REFRESH1, C_INIT_AUTO_REFRESH2, C_LD, C_LD_BURST, C_AUTO_REFRESH, IDLE, WRITE_ROW, WRITE_COL, DATA_REG, DONE);
+	type mem_state_type is (CONFIG, C_PRE, C_PRE_NOP, C_INIT_AUTO_REFRESH, C_LD, C_LD_BURST, C_AUTO_REFRESH, IDLE, WRITE_ROW, WRITE_COL, DATA_REG, DONE);
 	signal mem_state     : mem_state_type;
 	signal nop_nxt_state : mem_state_type;
 
@@ -157,7 +157,6 @@ begin
 							if wait_cycles = 0 then
 								init_refresh_counter := 0;
 								mem_state            <= C_PRE;
-								nop_nxt_state        <= C_LD;
 								wait_cycles          <= std_logic_vector(to_unsigned(PRE_TO_ACT - 1, wait_cycles'length));
 							end if;
 						else
@@ -166,6 +165,7 @@ begin
 
 					when C_PRE =>
 						mem_state <= C_PRE_NOP;
+						nop_nxt_state <= C_INIT_AUTO_REFRESH;
 
 					when C_PRE_NOP =>
 						wait_cycles <= wait_cycles - 1;
@@ -174,15 +174,14 @@ begin
 							mem_state <= nop_nxt_state;
 						end if;
 
-					when C_INIT_AUTO_REFRESH1 =>
+					when C_INIT_AUTO_REFRESH =>
 						wait_cycles   <= std_logic_vector(to_unsigned(tRC, wait_cycles'length));
 						mem_state     <= C_PRE_NOP;
-						nop_nxt_state <= C_INIT_AUTO_REFRESH2;
-						
-					when C_INIT_AUTO_REFRESH2 =>
-						wait_cycles   <= std_logic_vector(to_unsigned(tRC, wait_cycles'length));
-						mem_state     <= C_PRE_NOP;
-						nop_nxt_state <= IDLE;
+						init_refresh_counter := init_refresh_counter + 1;
+						if init_refresh_counter >= 2 then
+							nop_nxt_state <= C_LD;
+							init_refresh_counter := 0;
+						end if;
 
 					when C_LD =>
 						wait_cycles   <= std_logic_vector(to_unsigned(PRE_TO_ACT, wait_cycles'length));
@@ -355,16 +354,7 @@ begin
 				DRAM_CAS_N <= '0';
 				DRAM_WE_N  <= '0';
 				
-			when C_INIT_AUTO_REFRESH1 =>
-
-				-- commands
-				DRAM_BA    <= "00";
-				DRAM_CS_N  <= '0';
-				DRAM_RAS_N <= '0';
-				DRAM_CAS_N <= '0';
-				DRAM_WE_N  <= '1';
-
-			when C_INIT_AUTO_REFRESH2 =>
+			when C_INIT_AUTO_REFRESH =>
 
 				-- commands
 				DRAM_BA    <= "00";
