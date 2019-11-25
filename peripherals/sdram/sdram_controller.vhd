@@ -196,7 +196,13 @@ begin
 					when C_AUTO_REFRESH =>
 						wait_cycles   <= std_logic_vector(to_unsigned(tRC, wait_cycles'length));
 						mem_state     <= C_PRE_NOP;
-						nop_nxt_state <= IDLE;
+						init_refresh_counter := init_refresh_counter + 1;
+						if init_refresh_counter >= 2 then
+							nop_nxt_state <= IDLE;
+							init_refresh_counter := 0;
+						else
+							nop_nxt_state <= C_AUTO_REFRESH;
+						end if;
 
 					when IDLE =>
 						if refresh_counter = 10 then
