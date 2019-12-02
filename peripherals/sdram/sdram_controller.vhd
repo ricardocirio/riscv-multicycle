@@ -47,9 +47,9 @@ entity sdram_controller is
 		-- SDRAM latencies
 		DATA_AVAL  : integer := 2;      -- cycles
 		RESET_NOP  : integer := 4;      -- cycles
-		RAS_TO_CAS : integer := 2;      -- cycles			
+		RAS_TO_CAS : integer := 3;      -- cycles			
 		PRE_TO_ACT : integer := 3;      -- cycles
-		tRP        : integer := 2;      -- cycles
+		tRP        : integer := 3;      -- cycles
 		tRC        : integer := 10       -- cycles
 	);
 
@@ -196,13 +196,13 @@ begin
 					when C_AUTO_REFRESH =>
 						wait_cycles   <= std_logic_vector(to_unsigned(tRC, wait_cycles'length));
 						mem_state     <= C_PRE_NOP;
-						init_refresh_counter := init_refresh_counter + 1;
-						if init_refresh_counter >= 2 then
+						--init_refresh_counter := init_refresh_counter + 1;
+						--if init_refresh_counter >= 2 then
 							nop_nxt_state <= IDLE;
-							init_refresh_counter := 0;
-						else
-							nop_nxt_state <= C_AUTO_REFRESH;
-						end if;
+							--init_refresh_counter := 0;
+						--else
+							--nop_nxt_state <= C_AUTO_REFRESH;
+						--end if;
 
 					when IDLE =>
 						if refresh_counter = 10 then
@@ -348,7 +348,7 @@ begin
 				DRAM_ADDR(6 downto 4)   <= "010";
 				-- Op mode: standard operation
 				DRAM_ADDR(8 downto 7)   <= "00";
-				-- Write burst mode: single location
+				-- Write in nonburst mode: single location, Read in burst mode with specified length
 				DRAM_ADDR(9)            <= '1';
 				-- reserved
 				DRAM_ADDR(12 downto 10) <= "001";

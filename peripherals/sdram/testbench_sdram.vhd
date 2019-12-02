@@ -97,35 +97,35 @@ begin
 		wait for 10 ns;
 		rst      <= '0';
 		wait for 200 ns;
-		burst <= '1';
-		wait for 100 ns;
+		burst <= '0';
+		wait for 500 ns;
 		
 		d_we      	<= '1';
-		ddata_w  	<= x"00000000";
+		ddata_w  	<= x"00001234";
 		sdram_addr    <= x"00000000";
-		wait for 100 ns;
+		wait for 200 ns;
 		d_we      <= '0';
-		wait for 100 ns;
+		wait for 200 ns;
 		
 		d_we      <= '1';
 		ddata_w  	<= x"00000001";
 		sdram_addr    <= x"00000001";
-		wait for 100 ns;
+		wait for 200 ns;
 		d_we      <= '0';
-		wait for 100 ns;
+		wait for 200 ns;
 		
 		d_we      <= '1';
 		ddata_w  	<= x"00000003";
 		sdram_addr    <= x"00000003";
-		wait for 100 ns;
+		wait for 200 ns;
 		d_we      <= '0';
-		wait for 100 ns;
+		wait for 200 ns;
 		
 		sdram_d_rd     <= '1';
 		sdram_addr    <= x"00000000";
-		wait for 100 ns;
+		wait for 200 ns;
 		sdram_d_rd     <= '1';
-		wait for 100 ns;
+		wait for 200 ns;
 
 		wait;
 	end process;
