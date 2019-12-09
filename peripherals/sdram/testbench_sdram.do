@@ -36,7 +36,7 @@ add wave -radix unsigned -label DRAM_WE_N /DRAM_WE_N
 add wave -radix hex -label DRAM_DQ /DRAM_DQ
 
 #Simula até um 500ns
-run 2500ns
+run 3500ns
 
 wave zoomfull
 write wave wave.ps

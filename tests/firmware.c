@@ -20,16 +20,23 @@ int main(){
 	int i = 0;
 	volatile uint32_t *sdram = &SDRAM;
    
+//	for(x=0; x<16; x++){
+//		sdram[x] = 4;
+//	}
+
 	while (1){
 
 		for(x=0; x<16; x++){
-				 sdram[x] = 9;
+			sdram[x] = 4;
+
 		}
 
 		for(x=0; x<16; x++){
 			OUTBUS =  sdram[x];
-			//delay_(5000); //ToDo: SDRAM refresh and init are not working.
+			delay_(50); //ToDo: SDRAM refresh and init are not working.
 		}
+
+
 		
 		/* To test Data Bus 
 		x = INBUS;        

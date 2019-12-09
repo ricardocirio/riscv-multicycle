@@ -50,7 +50,7 @@ entity sdram_controller is
 		RAS_TO_CAS : integer := 3;      -- cycles			
 		PRE_TO_ACT : integer := 3;      -- cycles
 		tRP        : integer := 3;      -- cycles
-		tRC        : integer := 10       -- cycles
+		tRC        : integer := 12       -- cycles
 	);
 
 	port(
@@ -237,13 +237,13 @@ begin
 						refresh_counter := refresh_counter + 1;
 
 					when WRITE_ROW =>
-						wait_cycles   <= std_logic_vector(to_unsigned(RAS_TO_CAS - 2, wait_cycles'length));
+						wait_cycles   <= std_logic_vector(to_unsigned(RAS_TO_CAS - 1, wait_cycles'length));
 						mem_state     <= C_PRE_NOP;
 						nop_nxt_state <= WRITE_COL;
 
 					when WRITE_COL =>
 						if read = '1' then
-							wait_cycles   <= std_logic_vector(to_unsigned(DATA_AVAL - 2, wait_cycles'length));
+							wait_cycles   <= std_logic_vector(to_unsigned(DATA_AVAL - 1, wait_cycles'length));
 							mem_state     <= C_PRE_NOP;
 							nop_nxt_state <= DATA_REG;
 						else
