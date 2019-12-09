@@ -112,4 +112,4 @@ add wave -radix unsigned -label DRAM_DQ /DRAM_DQ
 add wave -label mem_state 				/sdram_controller/mem_state
 
 wave zoomfull
-run 950000 ns
+run 600000 ns

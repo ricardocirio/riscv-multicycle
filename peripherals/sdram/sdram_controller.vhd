@@ -141,6 +141,7 @@ begin
 	do_clk_mem_acc_state : process(clk, reset, cmdack)
 		variable refresh_counter      : natural;
 		variable init_refresh_counter : natural;
+		variable precharge_init 	  : std_logic := '0';
 	begin
 		if reset = '1' then
 			mem_state   <= CONFIG;
@@ -165,7 +166,14 @@ begin
 
 					when C_PRE =>
 						mem_state <= C_PRE_NOP;
-						nop_nxt_state <= C_INIT_AUTO_REFRESH;
+						if precharge_init = '0' then
+							nop_nxt_state <= C_INIT_AUTO_REFRESH;
+							precharge_init := '1';
+						else
+							wait_cycles          <= std_logic_vector(to_unsigned(PRE_TO_ACT - 1, wait_cycles'length));
+							nop_nxt_state <= C_AUTO_REFRESH;
+							--mem_state <= IDLE;
+						end if;
 
 					when C_PRE_NOP =>
 						wait_cycles <= wait_cycles - 1;
@@ -254,7 +262,7 @@ begin
 						mem_state <= DONE;
 
 					when DONE =>
-						mem_state <= IDLE;
+						mem_state <= C_PRE;
 
 				end case;
 			end if;
