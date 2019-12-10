@@ -50,7 +50,7 @@ entity sdram_controller is
 		RAS_TO_CAS : integer := 3;      -- cycles			
 		PRE_TO_ACT : integer := 3;      -- cycles
 		tRP        : integer := 3;      -- cycles
-		tRC        : integer := 12       -- cycles
+		tRC        : integer := 12      -- cycles
 	);
 
 	port(
