@@ -62,7 +62,6 @@ end entity;
 
 architecture rtl of de10_lite is
 
-	signal rst   : std_logic;
 	signal rst_n : std_logic;
 
 	-- PLL signals
@@ -73,18 +72,17 @@ architecture rtl of de10_lite is
 	signal locked_sig     : std_logic;
 
 	-- SDRAM signals
-	signal sdram_addr       : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal sdram_addr       : STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
 	signal chipselect_sdram : STD_LOGIC;
 	signal rst              : STD_LOGIC;
 	signal clken            : std_logic;
 	signal d_we             : STD_LOGIC;
 	signal sdram_d_rd       : std_logic;
-	signal ddata_w          : STD_LOGIC_VECTOR(15 DOWNTO 0);
+	signal ddata_w          : STD_LOGIC_VECTOR(31 DOWNTO 0);
 	signal burst            : std_logic;
 	signal sdram_read       : STD_LOGIC_VECTOR(15 DOWNTO 0);
 	signal waitrequest      : std_logic;
 	signal DRAM_DQM         : std_logic_vector(1 downto 0);
-	signal burst            : std_logic;
 	signal byteenable       : std_logic_vector(1 downto 0);
 
 begin
@@ -131,21 +129,50 @@ begin
 
 	-- Dummy out signals
 	--ARDUINO_IO <= ddata_r(31 downto 16);
-	LEDR(9 downto 8) <= SW(9 downto 8);
+	LEDR(9 downto 7) <= SW(9 downto 7);
 
 	-- SDRAM Signals
-	--sdram_addr <= x"0000" & ;
+	sdram_addr(2 downto 0) <= SW(6 downto 4);
 	byteenable       <= "11";
 	chipselect_sdram <= '1';
 	clken            <= '1';
 	rst              <= SW(9);
-	d_we             <= SW(8);
-	sdram_d_rd       <= not SW(8);
-	--ddata_w <= ;
+	-- d_we             <= SW(8);
+	--sdram_d_rd       <= SW(7);
+	ddata_w <= x"0000000" & SW(3 downto 0);
 	burst            <= '0';
 	--<= sdram_read;
 	HEX5(0)          <= waitrequest;
 	DRAM_UDQM        <= DRAM_DQM(1);
 	DRAM_LDQM        <= DRAM_DQM(0);
-
+	
+	LEDR(3 downto 0) <= sdram_read(3 downto 0);
+	LEDR(6 downto 4) <= sdram_addr(2 downto 0);
+	
+	read_process: process(clk)
+		variable counter : natural := 0;
+	begin
+		if counter >= 1000 then
+			counter := 0;
+			
+			if d_we = '0' then
+				if sdram_d_rd = '0' then
+					sdram_d_rd <= '1';
+				else
+					sdram_d_rd <= '0';
+					d_we <= '1';
+				end if;
+			else
+				d_we <= '0';
+			end if;		
+		else
+			counter := counter + 1;
+		end if;
+		
+		if d_we = '1' then
+			sdram_d_rd <= '0';
+		end if;
+		
+	end process;
+	
 end;
